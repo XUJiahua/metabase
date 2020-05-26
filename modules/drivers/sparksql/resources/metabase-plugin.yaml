@@ -26,10 +26,31 @@ driver:
           - name: jdbc-flags
             placeholder: ';transportMode=http'
     connection-properties-include-tunnel-config: false
+  - name: impala
+    display-name: Impala
+    lazy-load: true
+    parent: hive-like
+    connection-properties:
+      - host
+      - merge:
+          - port
+          - default: 21050
+      - merge:
+          - dbname
+          - placeholder: default
+      - user
+      - password
+      - merge:
+          - additional-options
+          - name: jdbc-flags
+            placeholder: ';auth=noSasl'
+    connection-properties-include-tunnel-config: false
 init:
   - step: load-namespace
     namespace: metabase.driver.hive-like
   - step: load-namespace
     namespace: metabase.driver.sparksql
+  - step: load-namespace
+    namespace: metabase.driver.impala
   - step: register-jdbc-driver
     class: metabase.driver.FixedHiveDriver
