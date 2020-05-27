@@ -5,7 +5,7 @@
   [
    ;; Exclusions below are all either things that are already part of metabase-core, or provide conflicting
    ;; implementations of things like log4j <-> slf4j, or are part of both hadoop-common and hive-jdbc;
-   [org.apache.hadoop/hadoop-common "3.1.1"
+   [org.apache.hadoop/hadoop-common "2.10.0"
     :exclusions [com.fasterxml.jackson.core/jackson-core
                  com.google.guava/guava
                  commons-logging
