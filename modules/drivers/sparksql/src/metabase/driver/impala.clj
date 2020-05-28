@@ -124,6 +124,25 @@
 ;           :database-type data-type
 ;           :base-type     (sql-jdbc.sync/database-type->base-type :hive-like (keyword data-type))}))))})
 
+(defmethod sql-jdbc.sync/database-type->base-type :impala
+  [_ database-type]
+  (condp re-matches (name database-type)
+    #"TINYINT"          :type/Integer
+    #"SMALLINT"         :type/Integer
+    #"INT"              :type/Integer
+    #"BIGINT"           :type/BigInteger
+    #"FLOAT"            :type/Float
+    #"DOUBLE"           :type/Float
+    #"DECIMAL.*"        :type/Decimal
+    #"TIMESTAMP"        :type/DateTime
+    #"STRING.*"         :type/Text
+    #"VARCHAR.*"        :type/Text
+    #"CHAR.*"           :type/Text
+    #"BOOLEAN"          :type/Boolean
+    #"ARRAY.*"          :type/Array
+    #"MAP.*"            :type/Dictionary
+    #".*"               :type/*))
+
 ;; bound variables are not supported in Spark SQL (maybe not Hive either, haven't checked)
 (defmethod driver/execute-reducible-query :impala
   [driver {:keys [database settings], {sql :query, :keys [params], :as inner-query} :native, :as outer-query} context respond]
