@@ -2,6 +2,7 @@
   (:require [clojure
              [set :as set]
              [string :as str]]
+            [java-time :as t]
             [clojure.java.jdbc :as jdbc]
             [honeysql
              [core :as hsql]
@@ -22,7 +23,8 @@
              [store :as qp.store]
              [util :as qputil]]
             [metabase.util.honeysql-extensions :as hx])
-  (:import [java.sql Connection ResultSet]))
+  (:import [java.sql Connection ResultSet]
+           [java.time LocalDateTime]))
 
 (driver/register! :impala, :parent :hive-like)
 
@@ -200,3 +202,9 @@
   (defmethod driver/supports? [:impala :foreign-keys] [_ _] true))
 
 (defmethod sql.qp/quote-style :impala [_] :mysql)
+
+;; impala only support TIMESTAMP without zone
+;; impala doesn't support "timestamp" keyword from default implementation
+(defmethod unprepare/unprepare-value [:impala LocalDateTime]
+  [_ t]
+  (format "to_timestamp('%s', 'yyyy-MM-dd HH:mm:ss')" (t/format "yyyy-MM-dd HH:mm:ss" t)))
