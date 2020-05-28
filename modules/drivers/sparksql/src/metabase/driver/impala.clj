@@ -208,3 +208,52 @@
 (defmethod unprepare/unprepare-value [:impala LocalDateTime]
   [_ t]
   (format "to_timestamp('%s', 'yyyy-MM-dd HH:mm:ss')" (t/format "yyyy-MM-dd HH:mm:ss" t)))
+
+;; reimplement sql.qp/date
+;; ref: https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/impala_datetime_functions.html
+;; ref: https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/impala_functions.html
+;; impala does not support date_format in hive/sparksql
+
+;; use from_timestamp instead
+(defn- date-format [format-str expr]
+  (hsql/call :from_timestamp expr (hx/literal format-str)))
+
+(defn- str-to-date [format-str expr]
+  (hx/->timestamp
+    (hsql/call :from_unixtime
+               (hsql/call :unix_timestamp
+                          expr (hx/literal format-str)))))
+
+(defn- trunc-with-format [format-str expr]
+  (str-to-date format-str (date-format format-str expr)))
+
+(defmethod sql.qp/date [:impala :default]         [_ _ expr] (hx/->timestamp expr))
+(defmethod sql.qp/date [:impala :minute]          [_ _ expr] (trunc-with-format "yyyy-MM-dd HH:mm" (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :minute-of-hour]  [_ _ expr] (hsql/call :minute (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :hour]            [_ _ expr] (trunc-with-format "yyyy-MM-dd HH" (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :hour-of-day]     [_ _ expr] (hsql/call :hour (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :day]             [_ _ expr] (trunc-with-format "yyyy-MM-dd" (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :day-of-month]    [_ _ expr] (hsql/call :dayofmonth (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :day-of-year]        [_ _ expr] (hsql/call :dayofyear (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :week-of-year]    [_ _ expr] (hsql/call :weekofyear (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :month]           [_ _ expr] (hsql/call :trunc (hx/->timestamp expr) (hx/literal :MM)))
+(defmethod sql.qp/date [:impala :month-of-year]   [_ _ expr] (hsql/call :month (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :quarter-of-year] [_ _ expr] (hsql/call :quarter (hx/->timestamp expr)))
+(defmethod sql.qp/date [:impala :year]            [_ _ expr] (hsql/call :trunc (hx/->timestamp expr) (hx/literal :year)))
+
+(defmethod sql.qp/date [:impala :day-of-week]        [_ _ expr] (hsql/call :dayofweek (hx/->timestamp expr)))
+
+(defmethod sql.qp/date [:impala :week]
+  [_ _ expr]
+  (hsql/call :date_sub
+             (hx/+ (hx/->timestamp expr)
+                   (hsql/raw "interval '1' day"))
+             (hsql/call :dayofweek (hx/->timestamp expr))))
+
+(defmethod sql.qp/date [:impala :quarter]
+  [_ _ expr]
+  (hsql/call :add_months
+             (hsql/call :trunc (hx/->timestamp expr) (hx/literal :year))
+             (hx/* (hx/- (hsql/call :quarter (hx/->timestamp expr))
+                         1)
+                   3)))
