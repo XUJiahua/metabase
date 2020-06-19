@@ -6,14 +6,13 @@
 (def client-id-placeholder "##client_id##")
 
 (defn- substitute-placeholder* [query]
-  (log/info @api/*current-user*)
-  ;; TODO: get :client_id from UserInstance
-  (let [client-id (:first_name @api/*current-user*)]
-    (assoc-in query [:native :query] (->
-                                       query
-                                       :native
-                                       :query
-                                       (clojure.string/replace client-id-placeholder (format "'%s'" client-id))))))
+  ;; only apply to users who have client-id
+  (if-let [client-id (:client_id @api/*current-user*)]
+    ;; only apply to native query (sql directly)
+    (if-let [sql (get-in query [:native :query])]
+      (assoc-in query [:native :query] (clojure.string/replace sql client-id-placeholder (format "'%s'" client-id)))
+      query)
+    query))
 
 
 (defn substitute-placeholder
