@@ -6212,3 +6212,15 @@ databaseChangeLog:
       changes:
         - dropTable:
             tableName: query_queryexecution
+
+  - changeSet:
+      id: 163
+      author: john
+      comment: 'client-id from lx sso'
+      changes:
+        - addColumn:
+            tableName: core_user
+            columns:
+              - column:
+                  name: client_id
+                  type: varchar(254)
