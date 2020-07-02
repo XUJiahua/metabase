@@ -341,11 +341,37 @@
 
 ;;; -------------------------------------------------- LingXi Auth ---------------------------------------------------
 
-; TODO: Configurable on admin UI
-(def ^:private lingxi-auth-appid "T1010")
-(def ^:private lingxi-auth-base-url "https://auth.xunliandata.com/v1/user")
-(def ^:private lingxi-auth-url (str lingxi-auth-base-url "/auth?appId=" lingxi-auth-appid "&next=%s"))
-(def ^:private lingxi-auth-user-info-url (str lingxi-auth-base-url "/token/user_info?scope=userInfo&appId=" lingxi-auth-appid "&token=%s"))
+(defsetting lingxi-auth-enabled
+            (deferred-tru "Enable LingXi SSO authentication.")
+            :type    :boolean
+            :default false)
+
+(defsetting lingxi-auth-app-id
+            (deferred-tru "LingXi SSO 3rd party APP ID.")
+            :default "T1010")
+
+(defsetting lingxi-auth-base-url
+            (deferred-tru "LingXi SSO 3rd party base URL.")
+            :default "https://auth.xunliandata.com/v1/user")
+
+(defsetting lingxi-auth-configured?
+            "Check if LingXi Auth is enabled and that the mandatory settings are configured."
+            :type       :boolean
+            :visibility :public
+            :setter     :none
+            :getter     (fn [] (boolean (and (lingxi-auth-enabled)
+                                             (lingxi-auth-appid)
+                                             (lingxi-auth-base-url)))))
+
+(defsetting lingxi-auth-url
+            "."
+            :setter     :none
+            :getter     (fn [] (str (lingxi-auth-base-url) "/auth?appId=" (lingxi-auth-app-id) "&next=%s")))
+
+(defsetting lingxi-auth-user-info-url
+            "."
+            :setter     :none
+            :getter     (fn [] (str (lingxi-auth-base-url)  "/token/user_info?scope=userInfo&appId=" (lingxi-auth-app-id)  "&token=%s")))
 
 (s/defn ^:private lingxi-auth-fetch-or-create-user! :- (s/maybe UUID)
   [first-name last-name email client-id]
@@ -357,7 +383,7 @@
     (create-session! :sso user)))
 
 (defn- lingxi-auth-user-info [token]
-  (let [resp  (http/get (format lingxi-auth-user-info-url token))
+  (let [resp  (http/get (format (lingxi-auth-user-info-url)  token))
         {:keys [status body]} resp]
     (when-not (= status 200)
       (throw (ex-info (tru "Failed to get LingXi User.") {:status-code 400})))
@@ -384,13 +410,16 @@
 (api/defendpoint GET "/lingxi_auth"
                  "Login with LingXi Auth. Metabase -> LingXi"
                  []
+                 (if (lingxi-auth-configured?)
                  ;; TODO: customize next url, currently hardcode /
-                 (resp/redirect (format lingxi-auth-url "/")))
+                   (resp/redirect (format (lingxi-auth-url) "/"))
+                    (resp/redirect "/")))
 
 (api/defendpoint GET "/lingxi_auth_callback"
                  "Login with LingXi Auth. LingXi -> Metabase"
                  [:as {{:keys [next]} :params, cookies :cookies, :as request }]
+                 (when (lingxi-auth-configured?)
                  (let [token (:value (cookies "gsessionid"))]
-                   (do-lingxi-auth token next request)))
+                   (do-lingxi-auth token next request))))
 
 (api/define-routes)
