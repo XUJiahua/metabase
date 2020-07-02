@@ -88,6 +88,10 @@ class Settings {
     return this.get("google-auth-client-id") != null;
   }
 
+  lingxiAuthEnabled() {
+    return this.get("lingxi-auth-configured?");
+  }
+
   hasSetupToken() {
     return this.get("setup-token") != null;
   }
