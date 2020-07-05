@@ -136,6 +136,7 @@
 
 (defn- maybe-add-implicit-clauses [{query-type :type, :as query}]
   (if (= query-type :native)
+    ;; if :native query-type, bypass
     query
     (update query :query add-implicit-mbql-clauses)))
 

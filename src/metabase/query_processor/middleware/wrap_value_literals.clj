@@ -9,7 +9,9 @@
              [store :as qp.store]
              [timezone :as qp.timezone]]
             [metabase.types :as types]
-            [metabase.util.date-2 :as u.date])
+            [metabase.util.date-2 :as u.date]
+            [clojure.tools.logging :as log]
+            [metabase.util :as u])
   (:import [java.time LocalDate LocalDateTime LocalTime OffsetDateTime OffsetTime ZonedDateTime]))
 
 ;;; --------------------------------------------------- Type Info ----------------------------------------------------
@@ -123,6 +125,7 @@
 (defn- wrap-value-literals*
   [{query-type :type, :as query}]
   (if-not (= query-type :query)
+    ;; if :native query, bypass
     query
     (mbql.s/validate-query
      (update query :query wrap-value-literals-in-mbql-query nil))))
@@ -135,3 +138,7 @@
   [qp]
   (fn [query rff context]
     (qp (wrap-value-literals* query) rff context)))
+
+;;
+;:filter [:= [:field-id 28] "LA"],
+;:filter [:= [:field-id 28] [:value "LA" {:base_type :type/Text, :special_type :type/State, :database_type "CHAR"}]],

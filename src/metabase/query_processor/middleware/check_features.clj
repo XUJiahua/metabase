@@ -30,6 +30,7 @@
 
 (defn- check-features* [{query-type :type, :as query}]
   (if-not (= query-type :query)
+    ;; if query-type is :native, no check???
     query
     (u/prog1 query
       (doseq [required-feature (query->required-features query)]

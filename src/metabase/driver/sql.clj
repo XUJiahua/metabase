@@ -9,7 +9,8 @@
              [substitution :as param-substitution]]
             [metabase.driver.sql.query-processor :as sql.qp]
             [metabase.driver.sql.util.unprepare :as unprepare]
-            [potemkin :as p]))
+            [potemkin :as p]
+            [clojure.tools.logging :as log]))
 
 (comment param-substitution/keep-me) ; this is so `cljr-clean-ns` and the liner don't remove the `:require`
 

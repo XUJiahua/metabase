@@ -607,6 +607,7 @@
              ;; param `run` can be used to control how the query is ran, e.g. if you need to
              ;; customize the `context` passed to the QP
              run         (^:once fn* [query info]
+                           ;; context below is not context :question
                           (qp.streaming/streaming-response [context export-format]
                             (qp/process-query-and-save-execution! query info context)))}}]
   {:pre [(u/maybe? sequential? parameters)]}

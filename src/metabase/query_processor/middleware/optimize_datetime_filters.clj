@@ -104,6 +104,8 @@
           optimized)
         &match))))
 
+
+;; for avoiding casts/extraction/truncation on column
 (defn optimize-datetime-filters
   "Middlware that optimizes equality (`=` and `!=`) and comparison (`<`, `between`, etc.) filter clauses against
   bucketed datetime fields. Rewrites those filter clauses as logically equivalent filter clauses that do not use

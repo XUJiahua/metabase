@@ -49,6 +49,7 @@
              [splice-params-in-response :as splice-params-in-response]
              [store :as store]
              [validate :as validate]
+             [print-query :as print-query]
              [wrap-value-literals :as wrap-value-literals]]
             [metabase.util.i18n :refer [tru]]
             [schema.core :as s]))
@@ -60,40 +61,77 @@
 ;; ▼▼▼ POST-PROCESSING ▼▼▼  happens from TOP-TO-BOTTOM, e.g. the results of `f` are (eventually) passed to `limit`
 (def default-middleware
   "The default set of middleware applied to queries ran via `process-query`."
-  [#'mbql-to-native/mbql->native
+  [
+   #'print-query/print-query
+   #'mbql-to-native/mbql->native
+   #'print-query/print-query
    #'check-features/check-features
+   #'print-query/print-query
    #'optimize-datetime-filters/optimize-datetime-filters
+   #'print-query/print-query
    #'wrap-value-literals/wrap-value-literals
+   #'print-query/print-query
    #'annotate/add-column-info
+   #'print-query/print-query
    #'perms/check-query-permissions
+   #'print-query/print-query
    #'pre-alias-ags/pre-alias-aggregations
+   #'print-query/print-query
    #'cumulative-ags/handle-cumulative-aggregations
+   #'print-query/print-query
    #'resolve-joins/resolve-joins
+   #'print-query/print-query
    #'add-implicit-joins/add-implicit-joins
+   #'print-query/print-query
    #'limit/limit
+   #'print-query/print-query
    #'format-rows/format-rows
+   #'print-query/print-query
    #'desugar/desugar
+   #'print-query/print-query
    #'binning/update-binning-strategy
+   #'print-query/print-query
    #'resolve-fields/resolve-fields
+   #'print-query/print-query
    #'add-dim/add-remapping
+   #'print-query/print-query
    #'implicit-clauses/add-implicit-clauses
+   #'print-query/print-query
    #'add-source-metadata/add-source-metadata-for-source-queries
+   #'print-query/print-query
    #'reconcile-bucketing/reconcile-breakout-and-order-by-bucketing
+   #'print-query/print-query
    #'bucket-datetime/auto-bucket-datetimes
+   #'print-query/print-query
    #'resolve-source-table/resolve-source-tables
+   #'print-query/print-query
    #'parameters/substitute-parameters
+   #'print-query/print-query
    #'resolve-referenced/resolve-referenced-card-resources
+   #'print-query/print-query
    #'expand-macros/expand-macros
+   #'print-query/print-query
    #'add-timezone-info/add-timezone-info
+   #'print-query/print-query
    #'splice-params-in-response/splice-params-in-response
+   #'print-query/print-query
    #'resolve-database-and-driver/resolve-database-and-driver
+   #'print-query/print-query
    #'fetch-source-query/resolve-card-id-source-tables
+   #'print-query/print-query
    #'store/initialize-store
+   #'print-query/print-query
    #'cache/maybe-return-cached-results
+   #'print-query/print-query
    #'validate/validate-query
+   #'print-query/print-query
    #'normalize/normalize
+   #'print-query/print-query
    #'add-rows-truncated/add-rows-truncated
-   #'results-metadata/record-and-return-metadata!])
+   #'print-query/print-query
+   #'results-metadata/record-and-return-metadata!
+   #'print-query/print-query
+   ])
 ;; ▲▲▲ PRE-PROCESSING ▲▲▲ happens from BOTTOM-TO-TOP, e.g. the results of `expand-macros` are passed to
 ;; `substitute-parameters`
 
@@ -101,6 +139,7 @@
 ;; middleware is changed. Outside of dev only build the QP once for performance/locality
 (defn- base-qp [middleware]
   (letfn [(qp []
+            ;; combine middleware and
             (qp.reducible/async-qp (qp.reducible/combine-middleware middleware)))]
     (if config/is-dev?
       (fn [& args]
@@ -199,8 +238,11 @@
   the REST API)."
   (concat
    default-middleware
-   [#'constraints/add-default-userland-constraints
+   [
+    #'constraints/add-default-userland-constraints
+    #'print-query/print-query
     #'process-userland-query/process-userland-query
+    #'print-query/print-query
     #'catch-exceptions/catch-exceptions]))
 
 (def ^{:arglists '([query] [query context])} process-userland-query-async
@@ -211,6 +253,7 @@
   "Like `process-query-sync`, but for 'userland' queries (e.g., queries ran via the REST API). Adds extra middleware."
   (qp.reducible/sync-qp process-userland-query-async))
 
+;; query and context
 (defn process-userland-query
   "Like `process-query`, but for 'userland' queries (e.g., queries ran via the REST API). Adds extra middleware."
   {:arglists '([query] [query context])}
@@ -230,6 +273,7 @@
    (process-userland-query (add-info query info)))
 
   ([query info context]
+   ;; merge info into query
    (process-userland-query (add-info query info) context)))
 
 (defn- add-default-constraints [query]
@@ -243,3 +287,9 @@
 
   ([query info context]
    (process-query-and-save-execution! (add-default-constraints query) info context)))
+
+;; incoming query
+;{:type query, :query {:source-table 3, :filter [= [field-id 28] LA]}, :database 1, :parameters []}
+
+;; info
+;{:executed-by 1, :context :ad-hoc, :card-id nil, :nested? false}

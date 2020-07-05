@@ -315,6 +315,7 @@
   dispatch-on-uninitialized-driver
   :hierarchy #'hierarchy)
 
+;; from now on, we will enter the driver level
 (defmulti execute-reducible-query
   "Execute a native query against that database and return rows that can be reduced using `transduce`/`reduce`.
 

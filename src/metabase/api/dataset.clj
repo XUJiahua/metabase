@@ -49,6 +49,7 @@
                         :card-id     source-card-id
                         :nested?     (boolean source-card-id)}]
     (qp.streaming/streaming-response [context :api]
+                                     ;; query from input, info from let, context from macro
       (qp/process-query-and-save-with-max-results-constraints! query info context))))
 
 

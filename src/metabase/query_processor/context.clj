@@ -40,6 +40,7 @@
   "Called by pivot fn to run preprocessed query. Normally, this simply calls `executef`, but you can override this for
   test purposes. The result of this function is ignored."
   {:arglists '([query rff context])}
+  ;; runf from context
   [query rff {runf* :runf, :as context}]
   {:pre [(fn? runf*)]}
   (runf* query rff context)

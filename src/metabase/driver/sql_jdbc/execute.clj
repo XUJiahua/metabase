@@ -380,12 +380,15 @@
   [driver {{sql :query, params :params} :native, :as outer-query} context respond]
   {:pre [(string? sql) (seq sql)]}
   (let [remark   (qputil/query->remark outer-query)
+        ;; add a remark on native query
         sql      (str "-- " remark "\n" sql)
         max-rows (or (mbql.u/query->max-rows-limit outer-query)
                      qp.i/absolute-max-results)]
     (with-open [conn (connection-with-timezone driver (qp.store/database) (qp.timezone/report-timezone-id-if-supported))
+                ;; open connection
                 stmt (doto (prepared-statement* driver conn sql params (context/canceled-chan context))
                        (.setMaxRows max-rows))
+                ;; prepared statement
                 rs   (execute-query! driver stmt)]
       (let [rsmeta           (.getMetaData rs)
             results-metadata {:cols (column-metadata driver rsmeta)}]

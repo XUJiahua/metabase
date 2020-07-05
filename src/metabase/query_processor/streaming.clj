@@ -18,6 +18,7 @@
          streaming.json/keep-me
          streaming.xlsx/keep-me)
 
+;; compared with default-rff
 (defn- streaming-rff [results-writer]
   (fn [initial-metadata]
     (let [row-count (volatile! 0)]
@@ -35,6 +36,8 @@
          (i/write-row! results-writer row (dec (vswap! row-count inc)))
          metadata)))))
 
+
+;; compared with default-reducedf
 (defn- streaming-reducedf [results-writer ^OutputStream os]
   (fn [_ final-metadata context]
     (i/finish! results-writer final-metadata)
@@ -43,6 +46,7 @@
       (.close os))
     (context/resultf final-metadata context)))
 
+;; a map
 (defn streaming-context
   "Context to pass to the QP to streaming results as `export-format` to an output stream. Can be used independently of
   the normal `streaming-response` macro, which is geared toward Ring responses.
@@ -70,6 +74,7 @@
   ^StreamingResponse [export-format f]
   (streaming-response/streaming-response (i/stream-options export-format) [os canceled-chan]
     (let [result (try
+                   ;; context created in streaming-response*
                    (f (streaming-context export-format os canceled-chan))
                    (catch Throwable e
                      e))

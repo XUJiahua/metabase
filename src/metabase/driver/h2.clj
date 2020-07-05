@@ -21,7 +21,8 @@
              [store :as qp.store]]
             [metabase.util
              [honeysql-extensions :as hx]
-             [i18n :refer [deferred-tru tru]]])
+             [i18n :refer [deferred-tru tru]]]
+            [clojure.tools.logging :as log])
   (:import [java.sql Clob ResultSet ResultSetMetaData]
            java.time.OffsetTime))
 

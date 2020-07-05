@@ -28,6 +28,9 @@
 (defn- merge-default-constraints [constraints]
   (merge default-query-constraints constraints))
 
+
+;; add in query if userlandxxx
+;  :constraints {:max-results 10000, :max-results-bare-rows 2000}}
 (defn- add-default-userland-constraints*
   "Add default values of `:max-results` and `:max-results-bare-rows` to `:constraints` map `m`."
   [{{:keys [add-default-userland-constraints?]} :middleware, :as query}]

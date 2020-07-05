@@ -98,6 +98,7 @@
   [x _]
   x)
 
+;; core functions
 (defn default-context
   "Return a new context for executing queries using the default values. These can be overrided as needed."
   []

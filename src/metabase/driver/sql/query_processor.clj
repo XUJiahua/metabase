@@ -742,6 +742,7 @@
 (defn- query->keys-in-application-order
   "Return the keys present in an MBQL `inner-query` in the order they should be processed."
   [inner-query]
+  (log/info inner-query)
   ;; sort first by any known top-level clauses according to the `top-level-application-clause-order` defined above,
   ;; then sort any unknown clauses by name.
   (sort-by (fn [clause] [(get top-level-clause-application-order clause Integer/MAX_VALUE) clause])
@@ -869,6 +870,23 @@
     (when-not i/*disable-qp-logging*
       (log/tracef "\nHoneySQL Form: %s\n%s" (u/emoji "🍯") (u/pprint-to-str 'cyan <>)))))
 
+;; outgoing honeysql form
+;{:from ((identifier :table "PUBLIC" "PEOPLE")),
+; :select
+;       ([(identifier :field "PUBLIC" "PEOPLE" "ID") (identifier :field-alias "ID")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "NAME") (identifier :field-alias "NAME")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "ADDRESS") (identifier :field-alias "ADDRESS")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "BIRTH_DATE") (identifier :field-alias "BIRTH_DATE")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "CITY") (identifier :field-alias "CITY")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "CREATED_AT") (identifier :field-alias "CREATED_AT")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "EMAIL") (identifier :field-alias "EMAIL")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "LATITUDE") (identifier :field-alias "LATITUDE")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "LONGITUDE") (identifier :field-alias "LONGITUDE")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "PASSWORD") (identifier :field-alias "PASSWORD")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "SOURCE") (identifier :field-alias "SOURCE")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "STATE") (identifier :field-alias "STATE")]
+;        [(identifier :field "PUBLIC" "PEOPLE" "ZIP") (identifier :field-alias "ZIP")]),
+; :limit 2000}
 
 ;;; +----------------------------------------------------------------------------------------------------------------+
 ;;; |                                                 MBQL -> Native                                                 |
@@ -885,3 +903,8 @@
   (let [honeysql-form (mbql->honeysql driver outer-query)
         [sql & args]  (format-honeysql driver honeysql-form)]
     {:query sql, :params args}))
+
+;; outgoing native query
+;{:query
+;         "SELECT \"PUBLIC\".\"PEOPLE\".\"ID\" AS \"ID\", \"PUBLIC\".\"PEOPLE\".\"NAME\" AS \"NAME\", \"PUBLIC\".\"PEOPLE\".\"ADDRESS\" AS \"ADDRESS\", \"PUBLIC\".\"PEOPLE\".\"BIRTH_DATE\" AS \"BIRTH_DATE\", \"PUBLIC\".\"PEOPLE\".\"CITY\" AS \"CITY\", \"PUBLIC\".\"PEOPLE\".\"CREATED_AT\" AS \"CREATED_AT\", \"PUBLIC\".\"PEOPLE\".\"EMAIL\" AS \"EMAIL\", \"PUBLIC\".\"PEOPLE\".\"LATITUDE\" AS \"LATITUDE\", \"PUBLIC\".\"PEOPLE\".\"LONGITUDE\" AS \"LONGITUDE\", \"PUBLIC\".\"PEOPLE\".\"PASSWORD\" AS \"PASSWORD\", \"PUBLIC\".\"PEOPLE\".\"SOURCE\" AS \"SOURCE\", \"PUBLIC\".\"PEOPLE\".\"STATE\" AS \"STATE\", \"PUBLIC\".\"PEOPLE\".\"ZIP\" AS \"ZIP\" FROM \"PUBLIC\".\"PEOPLE\" LIMIT 2000",
+; :params nil}

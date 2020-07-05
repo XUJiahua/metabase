@@ -33,6 +33,16 @@
   [query rff context]
   (context/runf query rff context))
 
+;; http://clojure-doc.org/articles/cookbooks/middleware.html
+;; would be better use ->, for example:
+;(def my-client
+;  (-> client
+;      wrap-no-op
+;      wrap-https
+;      wrap-add-date))
+; have to use reduce as middlewares in a container have dynamic number of middlewares
+
+;; mw(mw(mw(qp)))
 (defn combine-middleware
   "Combine a collection of QP middleware into a single QP function. The QP function, like the middleware, will have the
   signature:
@@ -42,6 +52,7 @@
   (reduce
    (fn [qp middleware]
      (middleware qp))
+   ;; pivot is the core function
    pivot
    middleware))
 

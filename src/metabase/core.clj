@@ -154,3 +154,6 @@
   (if cmd
     (run-cmd cmd args) ; run a command like `java -jar metabase.jar migrate release-locks` or `lein run migrate release-locks`
     (start-normally))) ; with no command line args just start Metabase normally
+
+
+(-main)
