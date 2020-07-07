@@ -36,6 +36,7 @@
              [normalize-query :as normalize]
              [optimize-datetime-filters :as optimize-datetime-filters]
              [parameters :as parameters]
+             [placeholder :as placeholder]
              [permissions :as perms]
              [pre-alias-aggregations :as pre-alias-ags]
              [process-userland-query :as process-userland-query]
@@ -82,6 +83,7 @@
    #'bucket-datetime/auto-bucket-datetimes
    #'resolve-source-table/resolve-source-tables
    #'parameters/substitute-parameters
+   #'placeholder/substitute-placeholder
    #'resolve-referenced/resolve-referenced-card-resources
    #'expand-macros/expand-macros
    #'add-timezone-info/add-timezone-info

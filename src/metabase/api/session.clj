@@ -4,6 +4,7 @@
             [cheshire.core :as json]
             [clj-http.client :as http]
             [clojure.tools.logging :as log]
+            [ring.util.response :as resp]
             [compojure.core :refer [DELETE GET POST]]
             [metabase
              [config :as config]
@@ -337,5 +338,88 @@
       (throttle/with-throttling [(login-throttlers :ip-address) (source-address request)]
         (do-google-auth request)))))
 
+
+;;; -------------------------------------------------- LingXi Auth ---------------------------------------------------
+
+(defsetting lingxi-auth-enabled
+            (deferred-tru "Enable LingXi SSO authentication.")
+            :type    :boolean
+            :default false)
+
+(defsetting lingxi-auth-app-id
+            (deferred-tru "LingXi SSO 3rd party APP ID.")
+            :default "T1010")
+
+(defsetting lingxi-auth-base-url
+            (deferred-tru "LingXi SSO 3rd party base URL.")
+            :default "https://auth.xunliandata.com/v1/user")
+
+(defsetting lingxi-auth-configured?
+            "Check if LingXi Auth is enabled and that the mandatory settings are configured."
+            :type       :boolean
+            :visibility :public
+            :setter     :none
+            :getter     (fn [] (boolean (and (lingxi-auth-enabled)
+                                             (lingxi-auth-app-id)
+                                             (lingxi-auth-base-url)))))
+
+(defsetting lingxi-auth-url
+            "."
+            :setter     :none
+            :getter     (fn [] (str (lingxi-auth-base-url) "/auth?appId=" (lingxi-auth-app-id) "&next=%s")))
+
+(defsetting lingxi-auth-user-info-url
+            "."
+            :setter     :none
+            :getter     (fn [] (str (lingxi-auth-base-url)  "/token/user_info?scope=userInfo&appId=" (lingxi-auth-app-id)  "&token=%s")))
+
+(s/defn ^:private lingxi-auth-fetch-or-create-user! :- (s/maybe UUID)
+  [first-name last-name email client-id]
+  (when-let [user (or (db/select-one [User :id :last_login] :email email)
+                      (user/create-new-lingxi-auth-user! {:first_name first-name
+                                                          :last_name  last-name
+                                                          :email      email
+                                                          :client_id client-id}))]
+    (create-session! :sso user)))
+
+(defn- lingxi-auth-user-info [token]
+  (let [resp  (http/get (format (lingxi-auth-user-info-url)  token))
+        {:keys [status body]} resp]
+    (when-not (= status 200)
+      (throw (ex-info (tru "Failed to get LingXi User.") {:status-code 400})))
+    (u/prog1 (json/parse-string body keyword)
+             (when-not (= (:status <>) 200)
+               (throw (ex-info (tru "Failed to get LingXi User.") {:status-code 400})))
+             (when (= (get-in <> [:user :lxUserId]) "")
+               (throw (ex-info (tru "Expect lxUserId from LingXi User.") {:status-code 400})))
+             (when (= (get-in <> [:user :merchantCode]) "")
+               (throw (ex-info (tru "Expect merchantCode from LingXi User.") {:status-code 400}))))))
+
+(defn- do-lingxi-auth [token next request]
+  (let [{:keys [user]}                   (lingxi-auth-user-info token)
+        {:keys [merchantCode lxUserId]} user]
+    (log/info (trs "Successfully authenticated LingXi User for: mid {0} uid {1}" merchantCode lxUserId))
+    (let [session-id (api/check-500 (lingxi-auth-fetch-or-create-user! "lingxi" "lingxi" (str lxUserId "@lingxi.com")  merchantCode))
+          response   {:id session-id}]
+      ; NOTE: set-session-cookie and redirect should be in one http response, just merge two response map
+      ; https://github.com/ring-clojure/ring/wiki/Creating-responses
+      (merge
+        (mw.session/set-session-cookie request response session-id)
+        (resp/redirect next)))))
+
+(api/defendpoint GET "/lingxi_auth"
+                 "Login with LingXi Auth. Metabase -> LingXi"
+                 []
+                 (if (lingxi-auth-configured?)
+                 ;; TODO: customize next url, currently hardcode /
+                   (resp/redirect (format (lingxi-auth-url) "/"))
+                    (resp/redirect "/")))
+
+(api/defendpoint GET "/lingxi_auth_callback"
+                 "Login with LingXi Auth. LingXi -> Metabase"
+                 [:as {{:keys [next]} :params, cookies :cookies, :as request }]
+                 (when (lingxi-auth-configured?)
+                 (let [token (:value (cookies "gsessionid"))]
+                   (do-lingxi-auth token next request))))
 
 (api/define-routes)

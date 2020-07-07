@@ -127,7 +127,7 @@
 (def admin-or-self-visible-columns
   "Sequence of columns that we can/should return for admins fetching a list of all Users, or for the current user
   fetching themselves. Needed to power the admin page."
-  (vec (concat default-user-columns [:google_auth :ldap_auth :is_active :updated_at :login_attributes])))
+  (vec (concat default-user-columns [:google_auth :ldap_auth :is_active :updated_at :login_attributes :client_id])))
 
 (def non-admin-or-self-visible-columns
   "Sequence of columns that we will allow non-admin Users to see when fetching a list of Users. Why can non-admins see
@@ -185,6 +185,7 @@
    :last_name                         su/NonBlankString
    :email                             su/Email
    (s/optional-key :password)         (s/maybe su/NonBlankString)
+   (s/optional-key :client_id)        (s/maybe su/NonBlankString)
    (s/optional-key :login_attributes) (s/maybe LoginAttributes)
    (s/optional-key :google_auth)      s/Bool
    (s/optional-key :ldap_auth)        s/Bool})
@@ -214,6 +215,14 @@
   (u/prog1 (insert-new-user! (assoc new-user :google_auth true))
     ;; send an email to everyone including the site admin if that's set
     (email/send-user-joined-admin-notification-email! <>, :google-auth? true)))
+
+(s/defn create-new-lingxi-auth-user!
+  "Convenience for creating a new user via Google Auth. This account is considered active immediately; thus all active
+  admins will receive an email right away."
+  [new-user :- NewUser]
+  (u/prog1 (insert-new-user! new-user)
+           ;; send an email to everyone including the site admin if that's set
+           (email/send-user-joined-admin-notification-email! <>)))
 
 (s/defn create-new-ldap-auth-user!
   "Convenience for creating a new user via LDAP. This account is considered active immediately; thus all active admins
