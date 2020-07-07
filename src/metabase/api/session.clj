@@ -360,7 +360,7 @@
             :visibility :public
             :setter     :none
             :getter     (fn [] (boolean (and (lingxi-auth-enabled)
-                                             (lingxi-auth-appid)
+                                             (lingxi-auth-app-id)
                                              (lingxi-auth-base-url)))))
 
 (defsetting lingxi-auth-url
