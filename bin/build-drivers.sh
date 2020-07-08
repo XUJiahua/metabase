@@ -20,7 +20,8 @@ if [ "$1" == clean ]; then
 fi
 
 # strip trailing slashes if `ls` is set to include them
-drivers=`ls modules/drivers/ | sed 's|/$||'`
+#drivers=`ls modules/drivers/ | sed 's|/$||' | grep -v 'impala'`
+drivers='mongo sparksql'
 
 for driver in $drivers; do
     echo "Build: $driver"
