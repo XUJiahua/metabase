@@ -41,7 +41,7 @@
         (init! plugin-info)))
     :ok))
 
-(defn- initialized? [{plugin-name :name}]
+(defn- initialized? [{{plugin-name :name} :info}]
   (@initialized-plugin-names plugin-name))
 
 (defonce ^:private plugin-initialization-lock (Object.))
