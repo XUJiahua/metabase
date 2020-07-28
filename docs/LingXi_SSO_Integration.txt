@@ -69,6 +69,14 @@ https://auth.xunliandata.com/v1/user/token/user_info?scope=userInfo&appId=T1010&
     "tencentGateway": {}
 }
 
+6. check permission
+
+curl -H "api-access-token:SV7ORKG5TDBAU2J1" https://auth2.xunliandata.com/privilege/api/user/getPermissionIdList\?merchantCode\=2088502222729252
+
+278w 权限代号
+
+https://www.yuque.com/qb5h00/sr49h1/idipbf#4wJ6X
+
 reference:
 
 1. API docs https://sso.ipay.so/swagger/

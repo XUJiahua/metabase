@@ -373,6 +373,19 @@
             :setter     :none
             :getter     (fn [] (str (lingxi-auth-base-url)  "/token/user_info?scope=userInfo&appId=" (lingxi-auth-app-id)  "&token=%s")))
 
+(defsetting lingxi-permission-url
+            (deferred-tru "LingXi User Permission")
+            :default "https://auth2.xunliandata.com/privilege/api/user/getPermissionIdList?merchantCode=%s")
+
+
+(defn- check-permission [client-id]
+  (let [resp (http/get (format (lingxi-permission-url) client-id) {
+                                                                   :headers {"api-access-token" "SV7ORKG5TDBAU2J1"}
+                                                                   })
+        {:keys [body]} resp
+        {:keys [data]} (json/parse-string body keyword)]
+    (some #(= "278w" %) data)))
+
 (s/defn ^:private lingxi-auth-fetch-or-create-user! :- (s/maybe UUID)
   [first-name last-name email client-id]
   (when-let [user (or (db/select-one [User :id :last_login] :email email)
@@ -393,7 +406,10 @@
              (when (= (get-in <> [:user :lxUserId]) "")
                (throw (ex-info (tru "Expect lxUserId from LingXi User.") {:status-code 400})))
              (when (= (get-in <> [:user :merchantCode]) "")
-               (throw (ex-info (tru "Expect merchantCode from LingXi User.") {:status-code 400}))))))
+               (throw (ex-info (tru "Expect merchantCode from LingXi User.") {:status-code 400})))
+             (when (not (check-permission (get-in <>  [:user :merchantCode])))
+               (throw (ex-info (tru "LingXi User do not have permission.") {:status-code 400})))
+             )))
 
 (defn- do-lingxi-auth [token next request]
   (let [{:keys [user]}                   (lingxi-auth-user-info token)
