@@ -130,16 +130,18 @@
 
 (defn- valid-email-update?
   "This predicate tests whether or not the user is allowed to update the email address associated with this account."
-  [{:keys [google_auth ldap_auth email] :as foo } maybe-new-email]
+  [{:keys [google_auth ldap_auth client_id email] :as foo} maybe-new-email]
   (or
-   ;; Admin users can update
-   api/*is-superuser?*
-   ;; If the email address didn't change, let it through
-   (= email maybe-new-email)
-   ;; We should not allow a regular user to change their email address if they are a google/ldap user
-   (and
-    (not google_auth)
-    (not ldap_auth))))
+    ;; Admin users can update
+    api/*is-superuser?*
+    ;; If the email address didn't change, let it through
+    (= email maybe-new-email)
+    ;; We should not allow a regular user to change their email address if they are a google/ldap user
+    (and
+      ;; lingxi_auth = client_id != ""
+      (= client_id "")
+      (not google_auth)
+      (not ldap_auth))))
 
 (api/defendpoint PUT "/:id"
   "Update an existing, active `User`."
