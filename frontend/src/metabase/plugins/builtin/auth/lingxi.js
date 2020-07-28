@@ -12,6 +12,7 @@ import LingXiButton from "metabase/auth/components/LingXiButton";
 
 import AuthenticationOption from "metabase/admin/settings/components/widgets/AuthenticationOption";
 import SettingsLingXiSSOForm from "metabase/admin/settings/components/SettingsLingXiSSOForm";
+import GroupMappingsWidget from "metabase/admin/settings/components/widgets/GroupMappingsWidget";
 
 const LINGXI_PROVIDER = {
   name: "lingxi",
@@ -62,6 +63,16 @@ PLUGIN_ADMIN_SETTINGS_UPDATES.push(sections => ({
         display_name: t`Base URL`,
         placeholder: "",
         type: "string",
+      },
+      {
+        key: "lingxi-auth-group-mappings",
+        display_name: t`Synchronize group memberships`,
+        description: null,
+        widget: GroupMappingsWidget,
+        props: {
+          mappingSetting: "lingxi-auth-group-mappings",
+          groupHeading: t`Distinguished Name`,
+        },
       },
     ],
   },

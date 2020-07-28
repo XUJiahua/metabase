@@ -22,6 +22,12 @@ export default class SettingsLingXiSSOForm extends Component {
               "lingxi-auth-base-url",
             ],
           },
+          {
+            title: t`Group Schema`,
+            settings: [
+              "lingxi-auth-group-mappings",
+            ],
+          },
         ]}
       />
     );
