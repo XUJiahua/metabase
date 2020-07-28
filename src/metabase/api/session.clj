@@ -25,7 +25,8 @@
              [schema :as su]]
             [schema.core :as s]
             [throttle.core :as throttle]
-            [toucan.db :as db])
+            [toucan.db :as db]
+            [metabase.integrations.common :as integrations.common])
   (:import com.unboundid.util.LDAPSDKException
            java.util.UUID))
 
@@ -378,6 +379,22 @@
             :default "https://auth2.xunliandata.com/privilege/api/user/getPermissionIdList?merchantCode=%s")
 
 
+(defsetting lingxi-auth-group-mappings
+            (deferred-tru "JSON containing xxx to Metabase group mappings.")
+            :type :json
+            :default {}
+            :getter (fn []
+                      (json/parse-string (setting/get-string :lingxi-auth-group-mappings)))
+            :setter (fn [new-value]
+                      (setting/set-json! :lingxi-auth-group-mappings new-value)))
+
+(defn- lingxi-auth-auto-join-groups
+  []
+  (->> (lingxi-auth-group-mappings)
+       (map val)
+       (flatten)
+       (set)))
+
 (defn- check-permission [client-id]
   (let [resp (http/get (format (lingxi-permission-url) client-id) {
                                                                    :headers {"api-access-token" "SV7ORKG5TDBAU2J1"}
@@ -392,7 +409,10 @@
                       (user/create-new-lingxi-auth-user! {:first_name first-name
                                                           :last_name  last-name
                                                           :email      email
-                                                          :client_id client-id}))]
+                                                          :client_id  client-id}))]
+    ;; add group
+    (integrations.common/add-group-memberships-if-needed! user
+                                                          (lingxi-auth-auto-join-groups))
     (create-session! :sso user)))
 
 (defn- lingxi-auth-user-info [token]
