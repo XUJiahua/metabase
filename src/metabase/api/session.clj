@@ -412,11 +412,19 @@
              )))
 
 (defn- do-lingxi-auth [token next request]
-  (let [{:keys [user]}                   (lingxi-auth-user-info token)
-        {:keys [merchantCode lxUserId]} user]
+  (let [{:keys [user]} (lingxi-auth-user-info token)
+        {:keys [merchantCode lxUserId merName]} user]
     (log/info (trs "Successfully authenticated LingXi User for: mid {0} uid {1}" merchantCode lxUserId))
-    (let [session-id (api/check-500 (lingxi-auth-fetch-or-create-user! "lingxi" "lingxi" (str lxUserId "@lingxi.com")  merchantCode))
-          response   {:id session-id}]
+    (let [session-id (api/check-500 (lingxi-auth-fetch-or-create-user!
+                                      ;; first_name
+                                      merName
+                                      ;; last_name
+                                      "灵犀商户"
+                                      ;; email format: lingxi_{mid}_{uid}@cardinfolink.com
+                                      (str "lingxi_" merchantCode "_" lxUserId "@cardinfolink.com")
+                                      ;; client_id
+                                      merchantCode))
+          response {:id session-id}]
       ; NOTE: set-session-cookie and redirect should be in one http response, just merge two response map
       ; https://github.com/ring-clojure/ring/wiki/Creating-responses
       (merge
