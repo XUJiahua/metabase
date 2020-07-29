@@ -434,8 +434,9 @@
 (defn- do-lingxi-auth [token next request]
   (let [{:keys [user]} (lingxi-auth-user-info token)
         {:keys [merchantCode lxUserId merName]} user]
-    (log/info (trs "Successfully authenticated LingXi User for: mid {0} uid {1}" merchantCode lxUserId))
-    (let [session-id (api/check-500 (lingxi-auth-fetch-or-create-user!
+    (log/info (trs "Successfully authenticated LingXi User for: mid {0} uid {1} mer_name {2}" merchantCode lxUserId merName))
+    (let [merName (if (= merName "") "灵犀商户" merName)
+          session-id (api/check-500 (lingxi-auth-fetch-or-create-user!
                                       ;; first_name
                                       merName
                                       ;; last_name
