@@ -10,9 +10,11 @@
   "Middleware that returns a 401 response if `request` has no associated `:metabase-user-id`."
   [handler]
   (fn [{:keys [metabase-user-id] :as request} respond raise]
-    (if metabase-user-id
-      (handler request respond raise)
-      (respond middleware.u/response-unauthentic))))
+    ; disable authentication
+    (handler request respond raise)))
+    ;;(if metabase-user-id
+    ;;  (handler request respond raise)
+    ;;  (respond middleware.u/response-unauthentic))))
 
 (defn- wrap-api-key* [{:keys [headers], :as request}]
   (if-let [api-key (headers metabase-api-key-header)]
