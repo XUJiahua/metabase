@@ -55,11 +55,7 @@ import SearchApp from "metabase/home/containers/SearchApp";
 export const getRoutes = store => (
   <Route title={t`Metabase`} component={App}>
     {/* APP */}
-    <Route
-      onEnter={async (nextState, replace, done) => {
-        done();
-      }}
-    >
+    <Route>
       {/* MAIN */}
       <Route>
         {/* The global all hands rotues, things in here are for all the folks */}
@@ -76,31 +72,6 @@ export const getRoutes = store => (
 
         <Route path="/explore" component={PostSetupApp} />
         <Route path="/explore/:databaseId" component={PostSetupApp} />
-
-        <Route path="search" title={t`Search`} component={SearchApp} />
-        <Route path="archive" title={t`Archive`} component={ArchiveApp} />
-
-        <Route path="collection/:collectionId" component={CollectionLanding}>
-          <ModalRoute path="edit" modal={CollectionEdit} />
-          <ModalRoute path="archive" modal={ArchiveCollectionModal} />
-          <ModalRoute path="new_collection" modal={CollectionCreate} />
-          <ModalRoute path="new_dashboard" modal={CreateDashboardModal} />
-          <ModalRoute path="permissions" modal={CollectionPermissionsModal} />
-        </Route>
-
-        <Route path="activity" component={HomepageApp} />
-
-        <Route
-          path="dashboard/:dashboardId"
-          title={t`Dashboard`}
-          component={DashboardApp}
-        >
-          <ModalRoute path="history" modal={DashboardHistoryModal} />
-          <ModalRoute path="move" modal={DashboardMoveModal} />
-          <ModalRoute path="copy" modal={DashboardCopyModal} />
-          <ModalRoute path="details" modal={DashboardDetailsModal} />
-          <ModalRoute path="archive" modal={ArchiveDashboardModal} />
-        </Route>
 
         <Route path="/question">
           <IndexRoute component={QueryBuilder} />
@@ -123,11 +94,7 @@ export const getRoutes = store => (
           <Route path=":dbId/schema/:schemaName" component={TableBrowser} />
         </Route>
 
-        {/* INDIVIDUAL DASHBOARDS */}
-
-        <Route path="/auto/dashboard/*" component={AutomaticDashboardApp} />
       </Route>
-
     </Route>
 
     {/* INTERNAL */}
