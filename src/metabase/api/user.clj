@@ -90,8 +90,8 @@
 (api/defendpoint GET "/current"
   "Fetch the current `User`."
   []
-  (-> (api/check-404 @api/*current-user*)
-      (hydrate :personal_collection_id :group_ids)))
+  (-> (api/check-404 @api/*current-user*)))
+      ;(hydrate :personal_collection_id :group_ids)))
 
 (api/defendpoint GET "/:id"
   "Fetch a `User`. You must be fetching yourself *or* be a superuser."
