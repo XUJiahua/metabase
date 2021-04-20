@@ -79,10 +79,7 @@ const getParitionedCollections = createSelector(
 class Overworld extends React.Component {
   render() {
     const {
-      user,
       showHomepageData,
-      showHomepageXrays,
-      updateSetting,
     } = this.props;
     return (
       <Box>
@@ -91,171 +88,9 @@ class Overworld extends React.Component {
             <MetabotLogo />
           </Tooltip>
           <Box ml={2}>
-            <Subhead>{Greeting.sayHello(user.first_name)}</Subhead>
+            <Subhead>{Greeting.sayHello("root")}</Subhead>
           </Box>
         </Flex>
-        <CollectionItemsLoader collectionId="root">
-          {({ items }) => {
-            const pinnedDashboards = items.filter(
-              d => d.model === "dashboard" && d.collection_position != null,
-            );
-
-            if (showHomepageXrays && !pinnedDashboards.length > 0) {
-              return (
-                <CandidateListLoader>
-                  {({ candidates, sampleCandidates, isSample }) => {
-                    // if there are no items to show then just hide the section
-                    if (!candidates && !sampleCandidates) {
-                      return null;
-                    }
-                    return (
-                      <Box mx={PAGE_PADDING} mt={[1, 3]}>
-                        {user.is_superuser && <AdminPinMessage />}
-                        <Box
-                          mt={[1, 3]}
-                          className="hover-parent hover--visibility"
-                        >
-                          <SectionHeading>
-                            <Flex align="center">
-                              {t`Try these x-rays based on your data.`}
-                              {user.is_superuser && (
-                                <ModalWithTrigger
-                                  triggerElement={
-                                    <Tooltip
-                                      tooltip={t`Remove these suggestions`}
-                                    >
-                                      <Icon
-                                        ml="2"
-                                        name="close"
-                                        className="hover-child text-brand-hover"
-                                      />
-                                    </Tooltip>
-                                  }
-                                  title={t`Remove these suggestions?`}
-                                  footer={
-                                    <Button
-                                      danger
-                                      onClick={onClose => {
-                                        updateSetting({
-                                          key: "show-homepage-xrays",
-                                          value: false,
-                                        });
-                                      }}
-                                    >
-                                      {t`Remove`}
-                                    </Button>
-                                  }
-                                >
-                                  <Box>
-                                    {t`These won’t show up on the homepage for any of your users anymore, but you can always get to x-rays by clicking on Browse Data in the main navigation, then clicking on the lightning bolt icon on one of your tables.`}
-                                  </Box>
-                                </ModalWithTrigger>
-                              )}
-                            </Flex>
-                          </SectionHeading>
-                          <Box>
-                            <ExplorePane
-                              candidates={candidates}
-                              withMetabot={false}
-                              title=""
-                              gridColumns={[1, 1 / 3]}
-                              asCards={true}
-                            />
-                          </Box>
-                        </Box>
-                      </Box>
-                    );
-                  }}
-                </CandidateListLoader>
-              );
-            }
-
-            if (pinnedDashboards.length === 0) {
-              return null;
-            }
-
-            return (
-              <Box px={PAGE_PADDING} mt={2}>
-                <SectionHeading>{t`Start here`}</SectionHeading>
-                <Grid>
-                  {pinnedDashboards.map(pin => {
-                    return (
-                      <GridItem
-                        w={[1, 1 / 2, 1 / 3]}
-                        key={`${pin.model}-${pin.id}`}
-                      >
-                        <Link
-                          data-metabase-event={`Homepage;Pinned Item Click;Pin Type ${pin.model}`}
-                          to={Urls.dashboard(pin.id)}
-                          hover={{ color: color("brand") }}
-                        >
-                          <Card hoverable p={3}>
-                            <Icon
-                              name="dashboard"
-                              color={color("brand")}
-                              mb={2}
-                              size={28}
-                            />
-                            <Box mt={1}>
-                              <h3>{pin.name}</h3>
-                            </Box>
-                          </Card>
-                        </Link>
-                      </GridItem>
-                    );
-                  })}
-                </Grid>
-              </Box>
-            );
-          }}
-        </CollectionItemsLoader>
-        <Box px={PAGE_PADDING} my={3}>
-          <SectionHeading>{ROOT_COLLECTION.name}</SectionHeading>
-          <Box p={[1, 2]} mt={2} bg={color("bg-medium")}>
-            {this.props.collections.filter(
-              c => c.id !== user.personal_collection_id,
-            ).length > 0 ? (
-              <CollectionList
-                collections={this.props.collections}
-                analyticsContext="Homepage"
-                asCards={true}
-              />
-            ) : (
-              <Box className="text-centered">
-                <Box style={{ opacity: 0.5 }}>
-                  <img
-                    src="app/img/empty.png"
-                    srcSet="
-                      app/img/empty.png 1x,
-                      app/img/empty@2x.png 2x
-                    "
-                    className="block ml-auto mr-auto"
-                  />
-                </Box>
-                <h3 className="text-medium">
-                  {user.is_superuser
-                    ? t`Save dashboards, questions, and collections in "${ROOT_COLLECTION.name}"`
-                    : t`Access dashboards, questions, and collections in "${ROOT_COLLECTION.name}"`}
-                </h3>
-              </Box>
-            )}
-            <Link
-              to="/collection/root"
-              color={color("text-medium")}
-              className="text-brand-hover"
-              data-metabase-event={`Homepage;Browse Items Clicked;`}
-            >
-              <Flex color={color("brand")} p={2} my={1} align="center">
-                <Box ml="auto" mr="auto">
-                  <Flex align="center">
-                    <h4>{t`Browse all items`}</h4>
-                    <Icon name="chevronright" size={14} ml={1} />
-                  </Flex>
-                </Box>
-              </Flex>
-            </Link>
-          </Box>
-        </Box>
         {showHomepageData && (
           <Database.ListLoader>
             {({ databases }) => {
@@ -271,37 +106,6 @@ class Overworld extends React.Component {
                   <SectionHeading>
                     <Flex align="center">
                       {t`Our data`}
-                      {user.is_superuser && (
-                        <ModalWithTrigger
-                          triggerElement={
-                            <Tooltip tooltip={t`Hide this section`}>
-                              <Icon
-                                ml="4"
-                                name="close"
-                                className="block hover-child text-brand-hover"
-                              />
-                            </Tooltip>
-                          }
-                          title={t`Remove this section?`}
-                          footer={
-                            <Button
-                              danger
-                              onClick={onClose => {
-                                updateSetting({
-                                  key: "show-homepage-data",
-                                  value: false,
-                                });
-                              }}
-                            >
-                              {t`Remove`}
-                            </Button>
-                          }
-                        >
-                          <Box>
-                            {t`"Our Data" won’t show up on the homepage for any of your users anymore, but you can always browse through your databases and tables by clicking Browse Data in the main navigation.`}
-                          </Box>
-                        </ModalWithTrigger>
-                      )}
                     </Flex>
                   </SectionHeading>
                   <Box mb={4}>

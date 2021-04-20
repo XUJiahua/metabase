@@ -6,24 +6,13 @@ import { PLUGIN_LANDING_PAGE } from "metabase/plugins";
 
 import { Route } from "metabase/hoc/Title";
 import { Redirect, IndexRedirect, IndexRoute } from "react-router";
-import { routerActions } from "react-router-redux";
-import { UserAuthWrapper } from "redux-auth-wrapper";
 import { t } from "ttag";
 
 import { loadCurrentUser } from "metabase/redux/user";
-import MetabaseSettings from "metabase/lib/settings";
 
 import App from "metabase/App.jsx";
 
 import HomepageApp from "metabase/home/containers/HomepageApp";
-
-// auth containers
-import AuthApp from "metabase/auth/AuthApp";
-import ForgotPasswordApp from "metabase/auth/containers/ForgotPasswordApp";
-import LoginApp from "metabase/auth/containers/LoginApp";
-import LogoutApp from "metabase/auth/containers/LogoutApp";
-import PasswordResetApp from "metabase/auth/containers/PasswordResetApp";
-import GoogleNoAccount from "metabase/auth/components/GoogleNoAccount";
 
 /* Dashboards */
 import DashboardApp from "metabase/dashboard/containers/DashboardApp";
@@ -41,12 +30,8 @@ import CollectionEdit from "metabase/collections/containers/CollectionEdit";
 import CollectionCreate from "metabase/collections/containers/CollectionCreate";
 import ArchiveCollectionModal from "metabase/components/ArchiveCollectionModal";
 import CollectionPermissionsModal from "metabase/admin/permissions/containers/CollectionPermissionsModal";
-import UserCollectionList from "metabase/containers/UserCollectionList";
 
-import PulseEditApp from "metabase/pulse/containers/PulseEditApp";
-import SetupApp from "metabase/setup/containers/SetupApp";
 import PostSetupApp from "metabase/setup/containers/PostSetupApp";
-import UserSettingsApp from "metabase/user/containers/UserSettingsApp";
 // new question
 import NewQueryOptions from "metabase/new_query/containers/NewQueryOptions";
 
@@ -67,58 +52,16 @@ import Overworld from "metabase/containers/Overworld";
 import ArchiveApp from "metabase/home/containers/ArchiveApp";
 import SearchApp from "metabase/home/containers/SearchApp";
 
-const MetabaseIsSetup = UserAuthWrapper({
-  predicate: () => true,
-  failureRedirectPath: "/setup",
-  authSelector: state => ({ hasSetupToken: MetabaseSettings.hasSetupToken() }), // HACK
-  wrapperDisplayName: "MetabaseIsSetup",
-  allowRedirectBack: false,
-  redirectAction: routerActions.replace,
-});
-
-const UserIsAuthenticated = UserAuthWrapper({
-  failureRedirectPath: "/auth/login",
-  authSelector: state => state.currentUser,
-  wrapperDisplayName: "UserIsAuthenticated",
-  redirectAction: routerActions.replace,
-});
-
-const UserIsAdmin = UserAuthWrapper({
-  predicate: currentUser => currentUser && currentUser.is_superuser,
-  failureRedirectPath: "/unauthorized",
-  authSelector: state => state.currentUser,
-  allowRedirectBack: false,
-  wrapperDisplayName: "UserIsAdmin",
-  redirectAction: routerActions.replace,
-});
-
-const UserIsNotAuthenticated = UserAuthWrapper({
-  predicate: currentUser => !currentUser,
-  failureRedirectPath: "/",
-  authSelector: state => state.currentUser,
-  allowRedirectBack: false,
-  wrapperDisplayName: "UserIsNotAuthenticated",
-  redirectAction: routerActions.replace,
-});
-
-const IsAuthenticated = MetabaseIsSetup(
-  UserIsAuthenticated(({ children }) => children),
-);
-const IsAdmin = MetabaseIsSetup(
-  UserIsAuthenticated(UserIsAdmin(({ children }) => children)),
-);
-
 export const getRoutes = store => (
   <Route title={t`Metabase`} component={App}>
     {/* APP */}
     <Route
       onEnter={async (nextState, replace, done) => {
-        await store.dispatch(loadCurrentUser());
         done();
       }}
     >
       {/* MAIN */}
-      <Route component={IsAuthenticated}>
+      <Route>
         {/* The global all hands rotues, things in here are for all the folks */}
         <Route
           path="/"
@@ -136,10 +79,6 @@ export const getRoutes = store => (
 
         <Route path="search" title={t`Search`} component={SearchApp} />
         <Route path="archive" title={t`Archive`} component={ArchiveApp} />
-
-        <Route path="collection/users" component={IsAdmin}>
-          <IndexRoute component={UserCollectionList} />
-        </Route>
 
         <Route path="collection/:collectionId" component={CollectionLanding}>
           <ModalRoute path="edit" modal={CollectionEdit} />
