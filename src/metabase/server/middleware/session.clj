@@ -247,14 +247,24 @@
   (when user-id
     (db/select-one current-user-fields, :id user-id)))
 
+; hardcode user binding whatever input is
 (defn do-with-current-user
   "Impl for `with-current-user`."
   [{:keys [metabase-user-id is-superuser? user-locale]} thunk]
-  (binding [*current-user-id*              metabase-user-id
-            i18n/*user-locale*             user-locale
-            *is-superuser?*                (boolean is-superuser?)
-            *current-user*                 (delay (find-user metabase-user-id))
-            *current-user-permissions-set* (delay (some-> metabase-user-id user/permissions-set))]
+  (binding [*current-user-id*              1
+            i18n/*user-locale*             "en"
+            *is-superuser?*                true
+            *current-user*                 (delay {
+                                                   :email "admin@admin.com"
+                                                   :first_name "admin"
+                                                   :is_active true
+                                                   :is_qbnewb true
+                                                   :is_superuser true
+                                                   :id 1
+                                                   :last_name "admin"
+                                                   :common_name "admin admin"
+                                                   })
+            *current-user-permissions-set* (delay #{"/collection/1/" "/" "/collection/root/" "/db/1/"})]
     (thunk)))
 
 (defmacro ^:private with-current-user-for-request
