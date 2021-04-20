@@ -8,15 +8,7 @@ import { Route } from "metabase/hoc/Title";
 import { Redirect, IndexRedirect, IndexRoute } from "react-router";
 import { t } from "ttag";
 
-import { loadCurrentUser } from "metabase/redux/user";
-
 import App from "metabase/App.jsx";
-
-import HomepageApp from "metabase/home/containers/HomepageApp";
-
-/* Dashboards */
-import DashboardApp from "metabase/dashboard/containers/DashboardApp";
-import AutomaticDashboardApp from "metabase/dashboard/containers/AutomaticDashboardApp";
 
 /* Browse data */
 import BrowseApp from "metabase/browse/components/BrowseApp";
@@ -26,12 +18,6 @@ import TableBrowser from "metabase/browse/containers/TableBrowser";
 
 import QueryBuilder from "metabase/query_builder/containers/QueryBuilder";
 
-import CollectionEdit from "metabase/collections/containers/CollectionEdit";
-import CollectionCreate from "metabase/collections/containers/CollectionCreate";
-import ArchiveCollectionModal from "metabase/components/ArchiveCollectionModal";
-import CollectionPermissionsModal from "metabase/admin/permissions/containers/CollectionPermissionsModal";
-
-import PostSetupApp from "metabase/setup/containers/PostSetupApp";
 // new question
 import NewQueryOptions from "metabase/new_query/containers/NewQueryOptions";
 
@@ -92,42 +78,6 @@ export const getRoutes = store => (
       </Route>
     </Route>
 
-    {/* INTERNAL */}
-    <Route
-      path="/_internal"
-      getChildRoutes={(partialNextState, callback) =>
-        // $FlowFixMe: flow doesn't know about require.ensure
-        require.ensure([], function(require) {
-          callback(null, [require("metabase/internal/routes").default]);
-        })
-      }
-    />
-
-    {/* DEPRECATED */}
-    {/* NOTE: these custom routes are needed because <Redirect> doesn't preserve the hash */}
-    <Route
-      path="/q"
-      onEnter={({ location }, replace) =>
-        replace({ pathname: "/question", hash: location.hash })
-      }
-    />
-    <Route
-      path="/card/:cardId"
-      onEnter={({ location, params }, replace) =>
-        replace({
-          pathname: `/question/${params.cardId}`,
-          hash: location.hash,
-        })
-      }
-    />
-    <Redirect from="/dash/:dashboardId" to="/dashboard/:dashboardId" />
-    <Redirect
-      from="/collections/permissions"
-      to="/admin/permissions/collections"
-    />
-
-    {/* MISC */}
-    <Route path="/unauthorized" component={Unauthorized} />
     <Route path="/*" component={NotFound} />
   </Route>
 );
