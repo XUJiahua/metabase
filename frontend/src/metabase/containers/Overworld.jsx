@@ -74,14 +74,6 @@ class Overworld extends React.Component {
     } = this.props;
     return (
       <Box>
-        <Flex px={PAGE_PADDING} pt={3} pb={1} align="center">
-          <Tooltip tooltip={t`Don't tell anyone, but you're my favorite.`}>
-            <MetabotLogo />
-          </Tooltip>
-          <Box ml={2}>
-            <Subhead>{Greeting.sayHello("root")}</Subhead>
-          </Box>
-        </Flex>
         {showHomepageData && (
           <Database.ListLoader>
             {({ databases }) => {
