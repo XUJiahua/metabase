@@ -70,9 +70,6 @@ export const getRoutes = store => (
           }}
         />
 
-        <Route path="/explore" component={PostSetupApp} />
-        <Route path="/explore/:databaseId" component={PostSetupApp} />
-
         <Route path="/question">
           <IndexRoute component={QueryBuilder} />
           {/* NEW QUESTION FLOW */}
@@ -85,8 +82,6 @@ export const getRoutes = store => (
           <Route path=":cardId" component={QueryBuilder} />
           <Route path=":cardId/notebook" component={QueryBuilder} />
         </Route>
-
-        <Route path="/ready" component={PostSetupApp} />
 
         <Route path="browse" component={BrowseApp}>
           <IndexRoute component={DatabaseBrowser} />
