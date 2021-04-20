@@ -68,7 +68,7 @@ import ArchiveApp from "metabase/home/containers/ArchiveApp";
 import SearchApp from "metabase/home/containers/SearchApp";
 
 const MetabaseIsSetup = UserAuthWrapper({
-  predicate: authData => !authData.hasSetupToken,
+  predicate: () => true,
   failureRedirectPath: "/setup",
   authSelector: state => ({ hasSetupToken: MetabaseSettings.hasSetupToken() }), // HACK
   wrapperDisplayName: "MetabaseIsSetup",
@@ -106,10 +106,6 @@ const IsAuthenticated = MetabaseIsSetup(
 );
 const IsAdmin = MetabaseIsSetup(
   UserIsAuthenticated(UserIsAdmin(({ children }) => children)),
-);
-
-const IsNotAuthenticated = MetabaseIsSetup(
-  UserIsNotAuthenticated(({ children }) => children),
 );
 
 export const getRoutes = store => (
