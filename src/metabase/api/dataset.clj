@@ -39,6 +39,10 @@
       :or   {context       :ad-hoc
              export-format :api
              qp-runner     qp/process-query-and-save-with-max-results-constraints!}}]
+  (log/info query)
+  (log/info context)
+  (log/info export-format)
+  (log/info qp-runner)
   (when (and (not= (:type query) "internal")
              (not= database mbql.s/saved-questions-virtual-database-id))
     (when-not database
@@ -61,6 +65,59 @@
   {database (s/maybe s/Int)}
   (run-query-async (update-in query [:middleware :js-int-to-string?] (fnil identity true))))
 
+;;(macroexpand
+;;`(api/defendpoint ^:streaming POST "/"
+;;                 "Execute a query and retrieve the results in the usual format."
+;;                 [:as {{:keys [database], query-type :type, :as query} :body}]
+;;                 {database (s/maybe s/Int)}
+;;                 (run-query-async (update-in query [:middleware :js-int-to-string?] (fnil identity true))))
+;;)
+
+;;(macroexpand
+;;  `(compojure.core/POST
+;;    "/"
+;;    [:as
+;;     {{:as metabase.api.dataset/query, :keys [metabase.api.dataset/database], metabase.api.dataset/query-type :type} :body}]
+;;    (metabase.api.common.internal/auto-parse
+;;      [:as
+;;       {{:as metabase.api.dataset/query, :keys [metabase.api.dataset/database], metabase.api.dataset/query-type :type} :body}]
+;;      (metabase.api.common.internal/validate-param
+;;        (quote metabase.api.dataset/database)
+;;        metabase.api.dataset/database
+;;        (schema.core/maybe schema.core/Int))
+;;      (metabase.api.common.internal/wrap-response-if-needed
+;;        (do
+;;          (metabase.api.dataset/run-query-async
+;;            (clojure.core/update-in
+;;              metabase.api.dataset/query
+;;              [:middleware :js-int-to-string?]
+;;              (clojure.core/fnil clojure.core/identity true)))))))
+;;)
+
+;;(compojure.core/make-route
+;;  :post
+;;  #clout.core.CompiledRoute{:source "/", :re #"/", :keys [], :absolute? false}
+;;  (clojure.core/fn
+;;    [request__28891__auto__]
+;;    (compojure.core/let-request
+;;      [[:as
+;;        {{:as metabase.api.dataset/query, :keys [metabase.api.dataset/database], metabase.api.dataset/query-type :type} :body}]
+;;       request__28891__auto__]
+;;      (metabase.api.common.internal/auto-parse
+;;        [:as
+;;         {{:as metabase.api.dataset/query, :keys [metabase.api.dataset/database], metabase.api.dataset/query-type :type} :body}]
+;;        (metabase.api.common.internal/validate-param
+;;          (quote metabase.api.dataset/database)
+;;          metabase.api.dataset/database
+;;          (schema.core/maybe schema.core/Int))
+;;        (metabase.api.common.internal/wrap-response-if-needed
+;;          (do
+;;            (metabase.api.dataset/run-query-async
+;;              (clojure.core/update-in
+;;                metabase.api.dataset/query
+;;                [:middleware :js-int-to-string?]
+;;                (clojure.core/fnil clojure.core/identity true)))))))))
+;;
 
 ;;; ----------------------------------- Downloading Query Results in Other Formats -----------------------------------
 
