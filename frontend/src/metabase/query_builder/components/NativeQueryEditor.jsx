@@ -361,22 +361,22 @@ export default class NativeQueryEditor extends Component {
 
     aceLanguageTools.addCompleter({
       getCompletions: async (editor, session, pos, prefix, callback) => {
-        try {
-          // HACK: call this.props.autocompleteResultsFn rather than caching the prop since it might change
-          const results = await this.props.autocompleteResultsFn(prefix);
-          // transform results of the API call into what ACE expects
-          const js_results = results.map(function(result) {
-            return {
-              name: result[0],
-              value: result[0],
-              meta: result[1],
-            };
-          });
-          callback(null, js_results);
-        } catch (error) {
-          console.log("error getting autocompletion data", error);
-          callback(null, []);
-        }
+        // try {
+        //   // HACK: call this.props.autocompleteResultsFn rather than caching the prop since it might change
+        //   const results = await this.props.autocompleteResultsFn(prefix);
+        //   // transform results of the API call into what ACE expects
+        //   const js_results = results.map(function(result) {
+        //     return {
+        //       name: result[0],
+        //       value: result[0],
+        //       meta: result[1],
+        //     };
+        //   });
+        //   callback(null, js_results);
+        // } catch (error) {
+        //   console.log("error getting autocompletion data", error);
+        //   callback(null, []);
+        // }
       },
     });
 
