@@ -15,9 +15,10 @@ export const REFRESH_SITE_SETTINGS = "metabase/settings/REFRESH_SITE_SETTINGS";
 export const refreshSiteSettings = createThunkAction(
   REFRESH_SITE_SETTINGS,
   ({ locale } = {}) => async (dispatch, getState) => {
-    const settings = await SessionApi.properties(null, {
-      headers: locale ? { "X-Metabase-Locale": locale } : {},
-    });
+    // const settings = await SessionApi.properties(null, {
+    //   headers: locale ? { "X-Metabase-Locale": locale } : {},
+    // });
+    const settings = {};
     MetabaseSettings.setAll(settings);
     return settings;
   },

@@ -177,18 +177,17 @@ export const getRoutes = store => (
       </Route>
 
       {/* MAIN */}
-      <Route component={IsAuthenticated}>
+      <Route>
         {/* The global all hands rotues, things in here are for all the folks */}
-        <Route
-          path="/"
-          component={Overworld}
-          onEnter={(nextState, replace) => {
-            const page = PLUGIN_LANDING_PAGE[0] && PLUGIN_LANDING_PAGE[0]();
-            if (page && page !== "/") {
-              replace(page);
-            }
-          }}
-        />
+        <Route path="/">
+          <IndexRoute component={QueryBuilder} />
+          {/* NEW QUESTION FLOW */}
+          <Route
+            path="new"
+            title={t`New Question`}
+            component={NewQueryOptions}
+          />
+        </Route>
 
         <Route path="/explore" component={PostSetupApp} />
         <Route path="/explore/:databaseId" component={PostSetupApp} />

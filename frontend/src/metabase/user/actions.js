@@ -45,7 +45,7 @@ export const updateUser = createThunkAction(UPDATE_USER, function(user) {
     try {
       await UserApi.update(user);
 
-      dispatch(refreshCurrentUser());
+      // dispatch(refreshCurrentUser());
 
       return {
         success: true,

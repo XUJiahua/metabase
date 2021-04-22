@@ -25,7 +25,7 @@ export const loadCurrentUser = createThunkAction(
   LOAD_CURRENT_USER,
   () => async (dispatch, getState) => {
     if (!getState().currentUser) {
-      await dispatch(refreshCurrentUser());
+      // await dispatch(refreshCurrentUser());
     }
   },
 );

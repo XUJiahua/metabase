@@ -73,36 +73,37 @@ export default class NewQueryOptions extends Component {
     {
       /* Determine how many items will be shown based on permissions etc so we can make sure the layout adapts */
     }
-    const NUM_ITEMS = (hasDataAccess ? 2 : 0) + (hasNativeWrite ? 1 : 0);
+    // const NUM_ITEMS = (hasDataAccess ? 2 : 0) + (hasNativeWrite ? 1 : 0);
+    const NUM_ITEMS = 1;
     const ITEM_WIDTHS = [1, 1 / 2, 1 / NUM_ITEMS];
 
     return (
       <Box my="auto" mx={PAGE_PADDING}>
         <Grid className="justifyCenter">
-          {hasDataAccess && (
-            <GridItem w={ITEM_WIDTHS}>
-              <NewQueryOption
-                image="app/img/simple_mode_illustration"
-                title={t`Simple question`}
-                description={t`Pick some data, view it, and easily filter, summarize, and visualize it.`}
-                width={180}
-                to={Urls.newQuestion()}
-                data-metabase-event={`New Question; Simple Question Start`}
-              />
-            </GridItem>
-          )}
-          {hasDataAccess && (
-            <GridItem w={ITEM_WIDTHS}>
-              <NewQueryOption
-                image="app/img/notebook_mode_illustration"
-                title={t`Custom question`}
-                description={t`Use the advanced notebook editor to join data, create custom columns, do math, and more.`}
-                width={180}
-                to={Urls.newQuestion({ mode: "notebook" })}
-                data-metabase-event={`New Question; Custom Question Start`}
-              />
-            </GridItem>
-          )}
+          {/*{hasDataAccess && (*/}
+          {/*  <GridItem w={ITEM_WIDTHS}>*/}
+          {/*    <NewQueryOption*/}
+          {/*      image="app/img/simple_mode_illustration"*/}
+          {/*      title={t`Simple question`}*/}
+          {/*      description={t`Pick some data, view it, and easily filter, summarize, and visualize it.`}*/}
+          {/*      width={180}*/}
+          {/*      to={Urls.newQuestion()}*/}
+          {/*      data-metabase-event={`New Question; Simple Question Start`}*/}
+          {/*    />*/}
+          {/*  </GridItem>*/}
+          {/*)}*/}
+          {/*{hasDataAccess && (*/}
+          {/*  <GridItem w={ITEM_WIDTHS}>*/}
+          {/*    <NewQueryOption*/}
+          {/*      image="app/img/notebook_mode_illustration"*/}
+          {/*      title={t`Custom question`}*/}
+          {/*      description={t`Use the advanced notebook editor to join data, create custom columns, do math, and more.`}*/}
+          {/*      width={180}*/}
+          {/*      to={Urls.newQuestion({ mode: "notebook" })}*/}
+          {/*      data-metabase-event={`New Question; Custom Question Start`}*/}
+          {/*    />*/}
+          {/*  </GridItem>*/}
+          {/*)}*/}
           {hasNativeWrite && (
             <GridItem w={ITEM_WIDTHS}>
               <NewQueryOption

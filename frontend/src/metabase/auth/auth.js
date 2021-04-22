@@ -24,7 +24,7 @@ export const login = createThunkAction(
 
     MetabaseAnalytics.trackEvent("Auth", "Login");
     await Promise.all([
-      dispatch(refreshCurrentUser()),
+      // dispatch(refreshCurrentUser()),
       dispatch(refreshSiteSettings()),
     ]);
     dispatch(push(redirectUrl || "/"));
@@ -47,7 +47,7 @@ export const loginGoogle = createThunkAction(LOGIN_GOOGLE, function(
       MetabaseAnalytics.trackEvent("Auth", "Google Auth Login");
 
       await Promise.all([
-        dispatch(refreshCurrentUser()),
+        // dispatch(refreshCurrentUser()),
         dispatch(refreshSiteSettings()),
       ]);
       dispatch(push(redirectUrl || "/"));
