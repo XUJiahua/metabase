@@ -120,8 +120,8 @@ type State = {
 };
 
 @ExplicitSize()
-@Snippets.loadList({ loadingAndErrorWrapper: false })
-@SnippetCollections.loadList({ loadingAndErrorWrapper: false })
+// @Snippets.loadList({ loadingAndErrorWrapper: false })
+// @SnippetCollections.loadList({ loadingAndErrorWrapper: false })
 export default class NativeQueryEditor extends Component {
   props: Props;
   state: State;
