@@ -50,8 +50,8 @@ const config = (module.exports = {
   // eventually we should have multiple (single file) entry points for various pieces of the app to enable code splitting
   entry: {
     "app-main": "./app-main.js",
-    "app-public": "./app-public.js",
-    "app-embed": "./app-embed.js",
+    // "app-public": "./app-public.js",
+    // "app-embed": "./app-embed.js",
     styles: "./css/index.css",
   },
 
@@ -157,22 +157,22 @@ const config = (module.exports = {
       inject: "head",
       alwaysWriteToDisk: true,
     }),
-    new HtmlWebpackPlugin({
-      filename: "../../public.html",
-      chunksSortMode: "manual",
-      chunks: ["vendor", "styles", "app-public"],
-      template: __dirname + "/resources/frontend_client/index_template.html",
-      inject: "head",
-      alwaysWriteToDisk: true,
-    }),
-    new HtmlWebpackPlugin({
-      filename: "../../embed.html",
-      chunksSortMode: "manual",
-      chunks: ["vendor", "styles", "app-embed"],
-      template: __dirname + "/resources/frontend_client/index_template.html",
-      inject: "head",
-      alwaysWriteToDisk: true,
-    }),
+    // new HtmlWebpackPlugin({
+    //   filename: "../../public.html",
+    //   chunksSortMode: "manual",
+    //   chunks: ["vendor", "styles", "app-public"],
+    //   template: __dirname + "/resources/frontend_client/index_template.html",
+    //   inject: "head",
+    //   alwaysWriteToDisk: true,
+    // }),
+    // new HtmlWebpackPlugin({
+    //   filename: "../../embed.html",
+    //   chunksSortMode: "manual",
+    //   chunks: ["vendor", "styles", "app-embed"],
+    //   template: __dirname + "/resources/frontend_client/index_template.html",
+    //   inject: "head",
+    //   alwaysWriteToDisk: true,
+    // }),
     new HtmlWebpackHarddiskPlugin({
       outputPath: __dirname + "/resources/frontend_client/app/dist",
     }),
@@ -186,14 +186,14 @@ const config = (module.exports = {
           beforeContent:
             "/*\n* This file is subject to the terms and conditions defined in\n * file 'LICENSE.txt', which is part of this source code package.\n */\n",
         },
-        "app-public": {
-          beforeContent:
-            "/*\n* This file is subject to the terms and conditions defined in\n * file 'LICENSE.txt', which is part of this source code package.\n */\n",
-        },
-        "app-embed": {
-          beforeContent:
-            "/*\n* This file is subject to the terms and conditions defined in\n * file 'LICENSE-EMBEDDING.txt', which is part of this source code package.\n */\n",
-        },
+        // "app-public": {
+        //   beforeContent:
+        //     "/*\n* This file is subject to the terms and conditions defined in\n * file 'LICENSE.txt', which is part of this source code package.\n */\n",
+        // },
+        // "app-embed": {
+        //   beforeContent:
+        //     "/*\n* This file is subject to the terms and conditions defined in\n * file 'LICENSE-EMBEDDING.txt', which is part of this source code package.\n */\n",
+        // },
       },
     }),
   ],
