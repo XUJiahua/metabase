@@ -5,6 +5,7 @@ on:
     branches:
       - "master"
       - metabot-v3-second-try
+      - patch-on-v0.52.3.6
     paths-ignore:
       # config files
       - ".**"
