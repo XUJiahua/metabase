@@ -6,6 +6,7 @@ on:
       - "master"
       - metabot-v3-second-try
       - feature-visualizer
+      - patch-on-v0.52.3.6
     paths-ignore:
       # config files
       - ".**"
