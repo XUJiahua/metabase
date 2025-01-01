@@ -529,6 +529,7 @@
 (defn log-enabled?
   "Returns true when we should record audit data into the audit log."
   []
+  ;; always log
   true)
 
 ;; `enhancements` are not currently a specific "feature" that EE tokens can have or not have. Instead, it's a
